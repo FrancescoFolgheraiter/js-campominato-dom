@@ -19,8 +19,8 @@ SVOLGIMENTO
 const gioca = document.querySelector("button");
 let giocoAttivo = false;
 gioca.addEventListener("click", function(){
+    let mines = [];
     const level = parseInt(document.querySelector("select").value);
-    console.log(level, typeof level)
     //campo di gioco in input
     const field = document.querySelector('main > .container');
     if(giocoAttivo){
@@ -33,34 +33,74 @@ gioca.addEventListener("click", function(){
         //controllo del quantitativo di celle da generare
         if(level==1){
             layout="easy"
-            generateField(field, 100, layout);
+            generateMines(100, mines)
+            generateField(field, 100, layout, mines);
         }
         else if(level==2){
             layout="medium"
-            generateField(field, 81, layout);
-            
+            generateMines(81, mines)
+            generateField(field, 81, layout, mines);
         }
         else{
             layout="hard"
-            generateField(field, 49, layout);
+            generateMines(49, mines)
+            generateField(field, 49, layout, mines);
         }  
         giocoAttivo = true;
     }
+    console.log("l'array è ",mines, typeof mines);   
 })
 //FUNCTION
-function generateField(stamp, range, size){
+//generazione campo di battaglia
+function generateField(stamp, range, size, bomb){
+    //flag fine partita
+    let flag = false;
+    let points = 0;
     //generazione campo di gioco
     for (let i = 1; i <= range; i++) {
         const cell = document.createElement('div');
         cell.classList.add('cell', size);
         cell.innerHTML = i;
         stamp.append(cell);
-        //prendo l'evento click sulle celle generate 
-        cell.addEventListener("click", function() {
-            //aggiungo o tolgo la classe che cambia colore alla cella
-            this.classList.toggle('active'); 
-            //stampo in console la cella cliccata
-            console.log("il numero della cella attivata è:",this.innerHTML) 
-        })
+        //associazione mine ai numeri sul campo
+        if(bomb.includes(i)){
+            cell.classList.add('mine');
+        } 
+            //prendo l'evento click sulle celle generate 
+            cell.addEventListener("click", function(){ 
+                //aggiungo la classe che cambia colore alla cella se la partita è ancora attiva
+                if (!(flag)){
+                    if (!(this.classList.contains('active'))){
+                        points += 1; 
+                    }
+                    this.classList.add('active');
+                } 
+                //stampo in console la cella cliccata
+                console.log("il numero della cella attivata è:",this.innerHTML)
+                if (this.classList.contains("active") && this.classList.contains("mine")){
+                    alert("hai perso! il tuo punteggio è di: " + points + "punti")
+                    this.classList.add('mine-active')
+                    flag=true;
+                }
+            })
+            //fine evento click
     }
+}
+
+//generazione array di 16 numeri casuali[mine]
+function generateMines(range, mines){
+    for (let i = 0; i < 16; i++) {
+        let number = generateRandomNumber(1, range)
+        let flag = mines.includes(number);
+        //ciclo di generazione nuovo numero se già presente nell'array
+        while (flag) {
+            number = generateRandomNumber(1, range);
+            flag= mines.includes(number);
+        }
+        mines.push(number);
+    }
+}
+//generazione numero rando
+function generateRandomNumber(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min; 
 }

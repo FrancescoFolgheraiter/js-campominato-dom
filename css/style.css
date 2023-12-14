@@ -39,6 +39,14 @@ html{
     background-color: #fd843e;
     border: 1px solid brown;
 }
+.mine{
+    background-color: #8bafc0;
+    border:1px solid #8bafff;
+}
+.mine-active{
+    background-color: red;
+    color:white;
+}
 button{
     border: 1px solid brown;
     background-color: rgb(250, 203, 143);
