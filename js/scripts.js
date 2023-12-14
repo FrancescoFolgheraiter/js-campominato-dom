@@ -54,8 +54,9 @@ gioca.addEventListener("click", function(){
 //generazione campo di battaglia
 function generateField(stamp, range, size, bomb){
     //flag fine partita
-    let flag = false;
+    let flag = true;
     let points = 0;
+    let validNumber =[];
     //generazione campo di gioco
     for (let i = 1; i <= range; i++) {
         const cell = document.createElement('div');
@@ -65,26 +66,44 @@ function generateField(stamp, range, size, bomb){
         //associazione mine ai numeri sul campo
         if(bomb.includes(i)){
             cell.classList.add('mine');
+        }
+        else{
+            validNumber.push(i)
         } 
             //prendo l'evento click sulle celle generate 
-            cell.addEventListener("click", function(){ 
-                //aggiungo la classe che cambia colore alla cella se la partita è ancora attiva
-                if (!(flag)){
-                    if (!(this.classList.contains('active'))){
-                        points += 1; 
-                    }
-                    this.classList.add('active');
-                } 
-                //stampo in console la cella cliccata
-                console.log("il numero della cella attivata è:",this.innerHTML)
-                if (this.classList.contains("active") && this.classList.contains("mine")){
-                    alert("hai perso! il tuo punteggio è di: " + points + "punti")
-                    this.classList.add('mine-active')
-                    flag=true;
-                }
+            cell.addEventListener("click", function(){
+                game(validNumber, this, i)
             })
+            function game(array, cell, index){ 
+                let k = 0;
+                if(flag == false){
+                    return
+                }
+                console.log(array,"la lunghezza è", array.length)
+                //aumento punti nel caso la casella non abbia la classe active
+                if(!(cell.classList.contains("active"))){
+                    points += 1;
+                }
+                //aggiungo la classe che cambia colore alla cella se la partita è ancora attiva
+                cell.classList.add('active');
+                //toglo gli elemnti cliccati dal numeri validi
+                k = array.indexOf(index);
+                array.splice(k, 1);
+                if(array.length == 0){
+                    flag = false;
+                    alert("Hai vinto con il seguente punteggio: "+ points)
+                    return
+                }
+                if (cell.classList.contains("active") && cell.classList.contains("mine")){
+                    points -= 1;
+                    alert("hai perso! il tuo punteggio è di: " + points + "punti")
+                    cell.classList.add('mine-active')
+                    flag=false;
+                }
+            }
             //fine evento click
     }
+    console.log("Imbroglia con i seguenti numeri", validNumber, typeof validNumber)
 }
 
 //generazione array di 16 numeri casuali[mine]
